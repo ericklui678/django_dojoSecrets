@@ -1,7 +1,6 @@
 from __future__ import unicode_literals
 from django.db import models
-import md5
-import os, binascii
+import bcrypt
 import re
 EMAIL_REGEX = re.compile(r'^[a-zA-Z0-9.+_-]+@[a-zA-Z0-9._-]+\.[a-zA-Z]+$')
 NAME_REGEX =re.compile('^[A-z]+$')
@@ -37,9 +36,12 @@ class UserManager(models.Manager):
 
         # if no errors
         if len(errors) == 0:
-            # add salt and hash the password
-            salt = binascii.b2a_hex(os.urandom(15))
-            hashed_pw = md5.new(salt + postData['password']).hexdigest()
+            # Generate new salt
+            salt = bcrypt.gensalt()
+            # Form data must be encoded before hashing
+            password = postData['password'].encode()
+            # Hash pw with password and salt
+            hashed_pw = bcrypt.hashpw(password, salt)
             # add to database
             User.objects.create(first_name=postData['first_name'], last_name=postData['last_name'], email=postData['email'], salt=salt, password=hashed_pw)
 
@@ -49,10 +51,10 @@ class UserManager(models.Manager):
         errors = []
         # if email is found in db
         if User.objects.filter(email=postData['email']):
-            salt = User.objects.get(email=postData['email']).salt
-            hashed_pw = md5.new(salt + postData['password']).hexdigest()
-            # compare hashed passwords
-            if User.objects.get(email=postData['email']).password != hashed_pw:
+            form_pw = postData['password'].encode()
+            db_pw = User.objects.get(email=postData['email']).password.encode()
+            # if hashed passwords do not match
+            if not bcrypt.checkpw(form_pw, db_pw):
                 errors.append('Incorrect password')
         # else if email is not found in db
         else:

@@ -3,6 +3,7 @@ from django.contrib import messages
 from .models import User
 
 def index(request):
+    # User.objects.filter(id__lt=5).delete()
     return render(request, 'dojoSecrets/index.html')
 
 def create(request):
@@ -24,7 +25,17 @@ def create(request):
         return redirect('/')
 
 def login(request):
-    print 'got login info'
+    postData = {
+        'email': request.POST['email'],
+        'password': request.POST['password']
+    }
+    errors = User.objects.login(postData)
+    if len(errors) == 0:
+        request.session['id'] = User.objects.filter(email=postData['email'])[0].id
+        request.session['name'] = User.objects.filter(email=postData['email'])[0].first_name
+        return redirect('/secrets')
+    for error in errors:
+        messages.info(request, error)
     return redirect('/')
 
 def secrets(request):
