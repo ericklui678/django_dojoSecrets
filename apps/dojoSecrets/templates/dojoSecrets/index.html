@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Login Registration</title>
+        {% load staticfiles %}
+        <link rel="stylesheet" href="{% static 'dojoSecrets/style.css' %}">
+    </head>
+    <body>
+        <!DOCTYPE html>
+        <html lang="en">
+            <head>
+                <meta charset="utf-8">
+                <title>CodingDojo Wall</title>
+            </head>
+            <body>
+                <div id="wrapper">
+                    <div id="header">
+                        <a href="/"><img id="dojo" src="/static/dojoSecrets/dojo.png" alt="coding dojo icon"></a>
+                        <form id="login" action="/login" method="post">
+                            {% csrf_token %}
+                            <input class="loginField" type="text" name="email" placeholder="Email">
+                            <input class="loginField" type="password" name="password" placeholder="Password">
+                            <input id="loginButton" type="submit" name="submit" value="Login">
+                        </form>
+                    </div> <!-- header -->
+                    <h1>Create a New Account</h1>
+                    <form action="/create" method="post">
+                        {% csrf_token %}
+                        <input class=nameField type="text" name="first_name" placeholder="First name">
+                        <input class=nameField type="text" name="last_name" placeholder="Last name">
+                        <input class=longField type="text" name="email" placeholder="Email">
+                        <input class=longField type="password" name="password" placeholder="Password">
+                        <input class=longField type="password" name="confirm" placeholder="Confirm password">
+                        <input id=submit type="submit" value="Register">
+                        {% if messages %}
+                            {% for message in messages %}
+                                <ul>
+                                    <li>{{message}}</li>
+                                </ul>
+                            {% endfor %}
+                        {% endif %}
+                    </form>
+                </div> <!-- wrapper -->
+            </body>
+        </html>
+    </body>
+</html>
