@@ -3,7 +3,7 @@ from django.contrib import messages
 from .models import User
 
 def index(request):
-    # User.objects.filter(id__lt=5).delete()
+    # User.objects.all().delete()
     return render(request, 'dojoSecrets/index.html')
 
 def create(request):
