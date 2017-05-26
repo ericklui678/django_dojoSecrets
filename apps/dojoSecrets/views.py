@@ -93,6 +93,14 @@ def like(request, sID, uID):
 
     return redirect('/secrets')
 
+def plike(request, sID, uID):
+    if Like.objects.filter(user_id=request.session.get('id'), secret_id=sID):
+        return redirect('/secrets/')
+    Like.objects.create(secret_id=sID, user_id=uID)
+    like_count = len(Like.objects.filter(secret_id=sID))
+    Secret.objects.filter(id=sID).update(like_count=like_count)
+    return redirect('/secrets/')
+
 def popular(request):
     context = {
         'secrets': Secret.objects.all().order_by('-like_count'),

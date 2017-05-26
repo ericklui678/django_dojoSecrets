@@ -10,5 +10,6 @@ urlpatterns = [
     url(r'^secrets/post/?$', views.secret_post),
     url(r'^delete/(?P<id>\d+)$', views.delete),
     url(r'^like/(?P<sID>\d+)/(?P<uID>\d+)$', views.like),
+    url(r'^plike/(?P<sID>\d+)/(?P<uID>\d+)$', views.plike),
     url(r'^secrets/$', views.popular),
 ]

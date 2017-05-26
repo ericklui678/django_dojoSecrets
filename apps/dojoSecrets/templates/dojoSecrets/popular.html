@@ -18,11 +18,6 @@
                     </form>
                 </div> <!-- topRight -->
             </div> <!-- header -->
-            <form action="/secrets/post" method="post">
-                {% csrf_token %}
-                <textarea name="secret_post" placeholder="Post your secret..." rows="8" cols="80"></textarea>
-                <input type="submit" name="submit" value="Submit">
-            </form>
             {% if messages %}
                 {% for message in messages %}
                     {{ message }}
@@ -33,9 +28,8 @@
             {% for secret in secrets %}
                 <p>
                     {{ secret.info }} - {{ secret.created_at }} {{ secret.like_count}} likes
-
                 </p>
-                <form action="/like/{{secret.id}}/{{secret.user.id}}" method="post">
+                <form action="/plike/{{secret.id}}/{{secret.user.id}}" method="post">
                     {% csrf_token %}
                     <input type="submit" name="submit" value="Like">
                 </form>
