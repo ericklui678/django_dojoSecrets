@@ -45,9 +45,14 @@ def login(request):
     return redirect('/')
 
 def secrets(request):
+    return_list = []
+    secrets = Secret.objects.all()
+    # for each secret, return tuple with current secret and whether user liked that secret
+    for secret in secrets:
+        return_list.append((secret, Like.objects.filter(user_id=request.session['id'], secret=secret)))
+    print return_list
     context = {
         'secrets': Secret.objects.all().order_by('-created_at')[:10],
-        'likes': Like.objects.all(),
     }
     return render(request, 'dojoSecrets/secrets.html', context)
 
