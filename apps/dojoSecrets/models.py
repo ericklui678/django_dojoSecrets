@@ -66,10 +66,26 @@ class User(models.Model):
     last_name = models.CharField(max_length=45)
     email = models.CharField(max_length=100)
     password = models.CharField(max_length=255)
-    created_at = models.DateTimeField(auto_now_add = True)
-    updated_at = models.DateTimeField(auto_now = True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     objects = UserManager()
 
     def __str__(self):
-        return str(self.id) + self.first_name + self.last_name + self.email + self.password
+        return str(self.id) + ' - ' + self.first_name + ' ' + self.last_name + ' - ' +  self.email + ' - ' + self.password
+
+class Secret(models.Model):
+    info = models.CharField(max_length=255)
+    like_count = models.IntegerField(default=0)
+    user = models.ForeignKey(User, related_name='secrets')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return 'ID:' + str(self.id) + ' - ' + self.info
+
+class Like(models.Model):
+    secret = models.ForeignKey(Secret, related_name='likes')
+    user = models.ForeignKey(User, related_name='users')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
