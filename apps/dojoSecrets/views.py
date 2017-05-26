@@ -48,7 +48,6 @@ def secrets(request):
     context = {
         'secrets': Secret.objects.all().order_by('-created_at')[:10],
         'likes': Like.objects.all(),
-        'users': User.objects.all(),
     }
     return render(request, 'dojoSecrets/secrets.html', context)
 
@@ -60,34 +59,30 @@ def secret_post(request):
         Secret.objects.create(info=secret_post, user_id=request.session['id'])
     return redirect('/secrets')
 
-def delete(request, id):
+def delete(request, id, page):
     Secret.objects.get(id=id).delete()
-    return redirect('/secrets/')
+    if page == 'recent':
+        return redirect('/secrets')
+    else:
+        return redirect('/secrets/')
 
-def pdelete(request, id):
-    Secret.objects.get(id=id).delete()
-    return redirect('/secrets/')
-
-def like(request, sID, uID):
+def like(request, sID, uID, page):
     # if user already liked that post, don't increment the like counter
     if Like.objects.filter(user_id=request.session.get('id'), secret_id=sID):
-        return redirect('/secrets')
+        if page == 'recent':
+            return redirect('/secrets')
+        else:
+            return redirect('/secrets/')
     # Add new entry to Like table
     Like.objects.create(secret_id=sID, user_id=uID)
     # Get like count of the secret the user liked
     like_count = len(Like.objects.filter(secret_id=sID))
     # Update Secret Table's like_count column
     Secret.objects.filter(id=sID).update(like_count=like_count)
-
-    return redirect('/secrets')
-
-def plike(request, sID, uID):
-    if Like.objects.filter(user_id=request.session.get('id'), secret_id=sID):
+    if page == 'recent':
+        return redirect('/secrets')
+    else:
         return redirect('/secrets/')
-    Like.objects.create(secret_id=sID, user_id=uID)
-    like_count = len(Like.objects.filter(secret_id=sID))
-    Secret.objects.filter(id=sID).update(like_count=like_count)
-    return redirect('/secrets/')
 
 def popular(request):
     context = {
