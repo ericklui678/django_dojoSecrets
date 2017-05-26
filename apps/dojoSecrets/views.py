@@ -45,10 +45,26 @@ def login(request):
     return redirect('/')
 
 def secrets(request):
+    print request.session['id']
+    print Like.objects.filter(user_id=request.session['id'])
+    for like in Like.objects.all():
+        print like.user.id, '-', like.secret.id
     # Secret.objects.all().delete()
+    # return_list = []
+    # secrets = Secret.objects.all()
+    # for secret in secrets:
+    #     return_list.append((secret,Like.objects.filter(user_id=request.session['id'], secret=secret)))
+    # print return_list
+    # print return_list
+    # find all the rows with my likes
+    # mylikes = Like.objects.filter(user_id=request.session['id'])
+    # for like in mylikes:
+    #     # find all secret posts that i liked
+    #     print like.secret.id
     context = {
         'secrets': Secret.objects.all().order_by('-created_at')[:10],
         'likes': Like.objects.all(),
+        'users': User.objects.all(),
     }
     return render(request, 'dojoSecrets/secrets.html', context)
 
@@ -65,6 +81,9 @@ def delete(request, id):
     return redirect('/secrets')
 
 def like(request, sID, uID):
+    # if user already liked that post, don't increment the like counter
+    if Like.objects.filter(user_id=request.session.get('id'), secret_id=sID):
+        return redirect('/secrets')
     # Add new entry to Like table
     Like.objects.create(secret_id=sID, user_id=uID)
     # Get like count of the secret the user liked
@@ -76,7 +95,8 @@ def like(request, sID, uID):
 
 def popular(request):
     context = {
-        'secrets': Secret.objects.all().order_by('-like_count')
+        'secrets': Secret.objects.all().order_by('-like_count'),
+        'likes': Like.objects.all(),
     }
     return render(request,'dojoSecrets/popular.html', context)
 
