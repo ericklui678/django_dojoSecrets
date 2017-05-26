@@ -6,9 +6,14 @@ def index(request):
     if request.session.get('name') == None:
         return render(request, 'dojoSecrets/index.html')
     else:
+        return_list = []
+        # return query of secrets ordered by most recent first
+        secrets = Secret.objects.all().order_by('-created_at')[:10]
+        # for each secret, return tuple with current secret and whether user liked that secret
+        for secret in secrets:
+            return_list.append((secret, Like.objects.filter(user_id=request.session['id'], secret=secret)))
         context = {
-            'secrets': Secret.objects.all().order_by('-created_at')[:10],
-            'likes': Like.objects.all(),
+            'secrets': return_list
         }
         return render(request, 'dojoSecrets/secrets.html', context)
 
@@ -46,13 +51,13 @@ def login(request):
 
 def secrets(request):
     return_list = []
-    secrets = Secret.objects.all()
+    # return query of secrets ordered by most recent first
+    secrets = Secret.objects.all().order_by('-created_at')[:10]
     # for each secret, return tuple with current secret and whether user liked that secret
     for secret in secrets:
         return_list.append((secret, Like.objects.filter(user_id=request.session['id'], secret=secret)))
-    print return_list
     context = {
-        'secrets': Secret.objects.all().order_by('-created_at')[:10],
+        'secrets': return_list
     }
     return render(request, 'dojoSecrets/secrets.html', context)
 
@@ -90,9 +95,14 @@ def like(request, sID, uID, page):
         return redirect('/secrets/')
 
 def popular(request):
+    return_list = []
+    # return query of secrets ordered by most recent first
+    secrets = Secret.objects.all().order_by('-like_count')
+    # for each secret, return tuple with current secret and whether user liked that secret
+    for secret in secrets:
+        return_list.append((secret, Like.objects.filter(user_id=request.session['id'], secret=secret)))
     context = {
-        'secrets': Secret.objects.all().order_by('-like_count'),
-        'likes': Like.objects.all(),
+        'secrets': return_list,
     }
     return render(request,'dojoSecrets/popular.html', context)
 

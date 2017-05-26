@@ -25,12 +25,16 @@
             {% endif %}
             <a href="/secrets">Go back</a>
             <h1>Most Popular Secrets...</h1>
-            {% for secret in secrets %}
-                <p>{{ secret.info }} - {{ secret.created_at }} {{ secret.like_count}} likes</p>
-                <form action="/like/{{secret.id}}/{{secret.user.id}}/popular" method="post">
+            {% for secret, liked in secrets %}
+                {{ secret.info }} - {{secret.created_at}} {{secret.like_count}} likes
+            {% if liked %}
+                You liked this<br><br>
+            {% else %}
+                <form action="/like/{{secret.id}}/{{request.session.id}}/popular" method="post">
                     {% csrf_token %}
                     <input type="submit" name="submit" value="Like">
                 </form>
+            {% endif %}
                 {% if request.session.id ==  secret.user.id %}
                     <form action="/delete/{{secret.id}}/popular" method="post">
                         {% csrf_token %}
