@@ -45,22 +45,6 @@ def login(request):
     return redirect('/')
 
 def secrets(request):
-    print request.session['id']
-    print Like.objects.filter(user_id=request.session['id'])
-    for like in Like.objects.all():
-        print like.user.id, '-', like.secret.id
-    # Secret.objects.all().delete()
-    # return_list = []
-    # secrets = Secret.objects.all()
-    # for secret in secrets:
-    #     return_list.append((secret,Like.objects.filter(user_id=request.session['id'], secret=secret)))
-    # print return_list
-    # print return_list
-    # find all the rows with my likes
-    # mylikes = Like.objects.filter(user_id=request.session['id'])
-    # for like in mylikes:
-    #     # find all secret posts that i liked
-    #     print like.secret.id
     context = {
         'secrets': Secret.objects.all().order_by('-created_at')[:10],
         'likes': Like.objects.all(),
@@ -78,7 +62,11 @@ def secret_post(request):
 
 def delete(request, id):
     Secret.objects.get(id=id).delete()
-    return redirect('/secrets')
+    return redirect('/secrets/')
+
+def pdelete(request, id):
+    Secret.objects.get(id=id).delete()
+    return redirect('/secrets/')
 
 def like(request, sID, uID):
     # if user already liked that post, don't increment the like counter
