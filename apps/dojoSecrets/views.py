@@ -5,8 +5,23 @@ from .models import User, Secret, Like
 from datetime import datetime, timedelta
 
 def index(request):
-    request.session.clear()
-    return render(request, 'dojoSecrets/index.html')
+    if request.session.get('id') == None:
+        return render(request, 'dojoSecrets/index.html')
+    else:
+        secrets = Secret.objects.all().order_by('-created_at')[:10]
+        now = timezone.localtime(timezone.now())
+        return_list = []
+        for secret in secrets:
+            dt = now - secret.created_at
+            return_list.append(
+                (secret,
+                Like.objects.filter(user_id=request.session['id'],secret=secret),
+                {'days': dt.days, 'hours': dt.seconds/3600, 'minutes': (dt.seconds/60)%60})
+            )
+        context = {
+            'secrets': return_list
+        }
+        return render(request, 'dojoSecrets/secrets.html', context)
 
 def create(request):
     postData = {
