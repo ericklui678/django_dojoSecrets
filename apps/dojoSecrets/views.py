@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .models import User, Secret, Like
+from datetime import datetime, timedelta
 
 def index(request):
     if request.session.get('name') == None:
@@ -50,6 +51,9 @@ def login(request):
     return redirect('/')
 
 def secrets(request):
+    now = datetime.now()
+    post_date = datetime(2017,1,1)
+    print (now - post_date).days
     return_list = []
     # return query of secrets ordered by most recent first
     secrets = Secret.objects.all().order_by('-created_at')[:10]
