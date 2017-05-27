@@ -5,19 +5,8 @@ from .models import User, Secret, Like
 from datetime import datetime, timedelta
 
 def index(request):
-    if request.session.get('name') == None:
-        return render(request, 'dojoSecrets/index.html')
-    else:
-        return_list = []
-        # return query of secrets ordered by most recent first
-        secrets = Secret.objects.all().order_by('-created_at')[:10]
-        # for each secret, return tuple with current secret and whether user liked that secret
-        for secret in secrets:
-            return_list.append((secret, Like.objects.filter(user_id=request.session['id'], secret=secret)))
-        context = {
-            'secrets': return_list
-        }
-        return render(request, 'dojoSecrets/secrets.html', context)
+    request.session.clear()
+    return render(request, 'dojoSecrets/index.html')
 
 def create(request):
     postData = {
@@ -103,11 +92,9 @@ def like(request, sID, uID, page):
         return redirect('/secrets/')
 
 def popular(request):
-    # return query of secrets ordered by most recent first
     secrets = Secret.objects.all().order_by('-like_count')
     now = timezone.localtime(timezone.now())
     return_list = []
-    # return list of tuple with (secret, whether user liked that secret, time duration)
     for secret in secrets:
         dt = now - secret.created_at
         return_list.append(

@@ -18,52 +18,59 @@
                     </form>
                 </div> <!-- topRight -->
             </div> <!-- header -->
-            {% if messages %}
-                {% for message in messages %}
-                    {{ message }}
+            <div id="content">
+                <a href="/secrets">Go back</a>
+                <h1>Most Popular Secrets...</h1>
+                {% for secret, liked, time in secrets %}
+                    <div class="secret_post">
+                        {{ secret.info }}
+                        {% if time.days %}
+                            ({{ time.days }}
+                            {% if time.days > 2 %}
+                                 days ago)
+                            {% else %}
+                                 day ago)
+                            {% endif %}
+                        {% elif time.hours %}
+                            ({{ time.hours }}
+                            {% if time.hours > 2 %}
+                                 hours ago)
+                            {% else %}
+                                 hour ago)
+                            {% endif %}
+                        {% elif time.minutes %}
+                        ({{ time.minutes }}
+                            {% if time.minutes > 2 %}
+                                 minutes ago)
+                            {% else %}
+                                 minute ago)
+                            {% endif %}
+                        {% else %}
+                            (now)
+                        {% endif %}
+                        {{ secret.like_count }}
+                        {% if secret.like_count == 1 %}
+                            like
+                        {% else %}
+                            likes
+                        {% endif %}
+                        {% if liked %}
+                            - You liked this
+                        {% else %}
+                            <form class="button" action="/like/{{secret.id}}/{{request.session.id}}/popular" method="post">
+                                {% csrf_token %}
+                                <input type="submit" name="submit" value="Like">
+                            </form>
+                        {% endif %}
+                            {% if request.session.id ==  secret.user.id %}
+                                <form class="button" action="/delete/{{secret.id}}/popular" method="post">
+                                    {% csrf_token %}
+                                    <input type="submit" name="submit" value="Delete">
+                                </form>
+                            {% endif %}
+                        </div>
                 {% endfor %}
-            {% endif %}
-            <a href="/secrets">Go back</a>
-            <h1>Most Popular Secrets...</h1>
-            {% for secret, liked, time in secrets %}
-                {{ secret.info }}
-                {% if time.days %}
-                    {% if time.days > 2 %}
-                        ({{ time.days }} days ago)
-                    {% else %}
-                        ({{ time.days }} day ago)
-                    {% endif %}
-                {% elif time.hours %}
-                    {% if time.hours > 2 %}
-                        ({{ time.hours }} hours ago)
-                    {% else %}
-                        ({{ time.hours }} hour ago)
-                    {% endif %}
-                {% elif time.minutes %}
-                    {% if time.minutes > 2 %}
-                        ({{ time.minutes }} minutes ago)
-                    {% else %}
-                        ({{ time.minutes }} minute ago)
-                    {% endif %}
-                {% else %}
-                    (now)
-                {% endif %}
-                {{ secret.like_count }} likes
-                {% if liked %}
-                    - You liked this<br>
-                {% else %}
-                    <form action="/like/{{secret.id}}/{{request.session.id}}/recent" method="post">
-                        {% csrf_token %}
-                        <input class="like" type="submit" name="submit" value="Like">
-                    </form>
-                {% endif %}
-                    {% if request.session.id ==  secret.user.id %}
-                        <form action="/delete/{{secret.id}}/recent" method="post">
-                            {% csrf_token %}
-                            <input type="submit" name="submit" value="Delete">
-                        </form>
-                    {% endif %}
-            {% endfor %}
+            </div>
         </div> <!-- wrapper -->
     </body>
 </html>
