@@ -1,22 +1,12 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
+from django.utils import timezone
 from .models import User, Secret, Like
 from datetime import datetime, timedelta
 
 def index(request):
-    if request.session.get('name') == None:
-        return render(request, 'dojoSecrets/index.html')
-    else:
-        return_list = []
-        # return query of secrets ordered by most recent first
-        secrets = Secret.objects.all().order_by('-created_at')[:10]
-        # for each secret, return tuple with current secret and whether user liked that secret
-        for secret in secrets:
-            return_list.append((secret, Like.objects.filter(user_id=request.session['id'], secret=secret)))
-        context = {
-            'secrets': return_list
-        }
-        return render(request, 'dojoSecrets/secrets.html', context)
+    request.session.clear()
+    return render(request, 'dojoSecrets/index.html')
 
 def create(request):
     postData = {
@@ -51,15 +41,18 @@ def login(request):
     return redirect('/')
 
 def secrets(request):
-    now = datetime.now()
-    post_date = datetime(2017,1,1)
-    print (now - post_date).days
-    return_list = []
     # return query of secrets ordered by most recent first
     secrets = Secret.objects.all().order_by('-created_at')[:10]
-    # for each secret, return tuple with current secret and whether user liked that secret
+    now = timezone.localtime(timezone.now())
+    return_list = []
+    # return list of tuple with (secret, whether user liked that secret, time duration)
     for secret in secrets:
-        return_list.append((secret, Like.objects.filter(user_id=request.session['id'], secret=secret)))
+        dt = now - secret.created_at
+        return_list.append(
+            (secret,
+            Like.objects.filter(user_id=request.session['id'],secret=secret),
+            {'days': dt.days, 'hours': dt.seconds/3600, 'minutes': (dt.seconds/60)%60})
+        )
     context = {
         'secrets': return_list
     }
@@ -99,14 +92,18 @@ def like(request, sID, uID, page):
         return redirect('/secrets/')
 
 def popular(request):
-    return_list = []
-    # return query of secrets ordered by most recent first
     secrets = Secret.objects.all().order_by('-like_count')
-    # for each secret, return tuple with current secret and whether user liked that secret
+    now = timezone.localtime(timezone.now())
+    return_list = []
     for secret in secrets:
-        return_list.append((secret, Like.objects.filter(user_id=request.session['id'], secret=secret)))
+        dt = now - secret.created_at
+        return_list.append(
+            (secret,
+            Like.objects.filter(user_id=request.session['id'],secret=secret),
+            {'days': dt.days, 'hours': dt.seconds/3600, 'minutes': (dt.seconds/60)%60})
+        )
     context = {
-        'secrets': return_list,
+        'secrets': return_list
     }
     return render(request,'dojoSecrets/popular.html', context)
 
